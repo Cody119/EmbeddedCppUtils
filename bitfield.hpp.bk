@@ -1,0 +1,57 @@
+
+template<typename X>
+constexpr X getMax(size_t s)
+{
+    return (1 << s) - 1;
+}
+
+template<typename X>
+constexpr X getMax()
+{
+    return ~((X)0);
+}
+
+template<typename X, typename... T>
+class BitStruct;
+
+template<typename X, typename Z, typename... T>
+class BitStruct<X, Z, T...>: BitStruct<X, T...>
+{
+    public:
+        void set(typename Z::Type pos)
+        {
+            this->data |= getMax<X>(Z::Size) << ((X)pos);
+        }
+        void clear(typename Z::Type pos)
+        {
+            this->data &= ~(getMax<X>(Z::Size) << ((X)pos));
+        }
+        void set(typename Z::Type pos, X val)
+        {
+            this->data = (this->data & ~(getMax<X>(Z::Size) << ((X)pos))) | ((getMax<X>(Z::Size) & val) << ((X)pos));
+        }
+        explicit operator X()
+        {
+            return this->data;
+        }
+};
+
+template<typename X>
+class BitStruct<X>
+{
+    protected:
+        X data;
+
+    public:
+        BitStruct(): data(0) {}
+        BitStruct(X initVal): data(initVal) {}
+
+};
+
+template<typename X, size_t P>
+class BitField
+{
+    public:
+        typedef X Type;
+        static constexpr size_t Size = P;
+};
